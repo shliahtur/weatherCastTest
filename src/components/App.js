@@ -1,24 +1,35 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { fetchWeather } from '../redux/actions'
+import { useSelector } from 'react-redux';
+import SearchForm from './SearchForm';
+import WeatherChart from './WeatherChart'
+import { convertToDate } from '../services/unixTimestampConvertor';
 import '../styles/App.scss';
 
 const App = () => {
-    const [city, setCity] = useState('')
-    const dispatch = useDispatch();
+    const { weatherData, error, loading } = useSelector(state => state.weatherCast);
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        dispatch(fetchWeather(city));
+    const getConvertedData = (data) => {
+        const list = data.list
+        if (!list) return null
+        const result = list.map(el => {
+            return {
+                name: convertToDate(el.dt),
+                temperature: el.main.temp
+            }
+        })
+        return result
     }
+
+    const chartData = getConvertedData(weatherData)
+
     return (
-        <div className='wrapper'>
-        <form onSubmit={handleSubmit} className='search-input'>
-            <input type='text' placeholder='Choose city' onChange={(e) => setCity(e.target.value)} />
-            <button type='submit'>Search</button>
-        </form>
+        <div className="wrapper">
+            <SearchForm />
+            {loading && <div>loading...</div>}
+            {
+                error || <WeatherChart data={chartData} />
+            }
         </div>
-    )
+    );
 }
 
-export default App
+export default App;
