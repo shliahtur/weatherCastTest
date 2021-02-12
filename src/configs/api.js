@@ -1,0 +1,1 @@
+export const API_TOKEN = '9366f974a94ed50e6b4f6434cb2ec050'
